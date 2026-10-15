@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DayDreaming</title>
+<style>
+:root{--bg:#0B275F;--bg2:#071A42;--card:#071A42;--gold:#EACD6D;--gold-a:rgba(234,205,109,.28);--head:#fff;--body:#A9B8D9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B275F;--bg2:#071A42}}
+:root[data-theme="dark"]{--bg:#0B275F;--bg2:#071A42}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--body);font-family:'Plus Jakarta Sans',Inter,system-ui,sans-serif;overflow:hidden}
+#stars{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#app{position:relative;z-index:1;height:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column}
+main{flex:1;overflow-y:auto;padding:16px 18px 96px}
+h1,h2,h3{color:var(--head);font-weight:700}
+h1{font-size:22px;display:flex;align-items:center;gap:8px}
+h2{font-size:17px;margin:22px 0 10px}
+h3{font-size:15px}
+p{font-size:13px;line-height:1.5}
+.gold{color:var(--gold)}
+.card{background:var(--card);border:1px solid var(--gold-a);border-radius:16px;padding:14px;box-shadow:0 0 18px rgba(234,205,109,.06)}
+.row{display:flex;gap:12px}
+.slider{display:flex;gap:12px;overflow-x:auto;margin:0 -18px;padding:0 18px 4px;scrollbar-width:none}
+.world{flex:0 0 200px;padding:0;overflow:hidden;cursor:pointer}
+.cover{height:110px}
+.world .t{padding:10px 12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mood{height:90px;border-radius:16px;border:1px solid var(--gold-a)}
+.hero{display:flex;flex-direction:column;align-items:center;padding:26px 0 4px}
+.orb{width:92px;height:92px;border-radius:50%;border:none;cursor:pointer;background:radial-gradient(circle at 35% 30%,#fff3c4,var(--gold) 55%,#b8962f);box-shadow:0 0 40px rgba(234,205,109,.55);animation:float 4s ease-in-out infinite;display:grid;place-items:center}
+@keyframes float{50%{transform:translateY(-8px)}}
+.hero p{margin-top:16px;text-align:center}
+nav{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-around;align-items:center;padding:8px 8px 22px;background:rgba(7,26,66,.94);border-top:1px solid var(--gold-a)}
+nav button{background:none;border:none;color:var(--body);font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 8px}
+nav button.on{color:var(--gold)}
+nav .plus{width:52px;height:52px;border-radius:50%;background:var(--gold);color:var(--bg2);font-size:28px;margin-top:-26px;box-shadow:0 0 22px rgba(234,205,109,.6);justify-content:center}
+.back{background:none;border:1px solid var(--gold-a);color:var(--gold);border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer}
+.bar{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.tabs{display:flex;gap:6px;margin:14px 0;overflow-x:auto;scrollbar-width:none}
+.tabs button,.chip{background:var(--card);border:1px solid var(--gold-a);color:var(--body);border-radius:20px;padding:7px 14px;font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+.tabs button.on,.chip.on{background:var(--gold);color:var(--bg2);font-weight:600}
+input[type=search]{width:100%;background:var(--card);border:1px solid var(--gold-a);color:var(--head);border-radius:16px;padding:12px 14px;font:inherit;font-size:14px;outline:none}
+input:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.stack>*+*{margin-top:10px}
+.fab{width:100%;margin-top:14px;background:var(--gold);color:var(--bg2);border:none;border-radius:16px;padding:13px;font:inherit;font-weight:700;cursor:pointer}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:5;display:none;align-items:flex-end;justify-content:center}
+.sheet-bg.open{display:flex}
+.sheet{width:100%;max-width:480px;background:var(--bg2);border:1px solid var(--gold-a);border-radius:24px 24px 0 0;padding:20px 18px calc(24px + env(safe-area-inset-bottom,0px))}
+.sheet .opt{width:100%;text-align:left;margin-top:10px;background:var(--card);border:1px solid var(--gold-a);border-radius:16px;padding:14px;color:var(--head);font:inherit;cursor:pointer}
+.sheet .opt span{display:block;color:var(--body);font-size:12px;margin-top:3px}
+.wm{position:fixed;right:12px;bottom:calc(4px + env(safe-area-inset-bottom,0px));font-size:10px;opacity:.5;color:var(--body);z-index:9;pointer-events:none}
+.toggle{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--gold-a);color:var(--head);font-size:14px}
+.sw{width:42px;height:24px;border-radius:12px;background:#27407c;border:none;position:relative;cursor:pointer}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+.sw.on{background:var(--gold)}.sw.on::after{left:21px}
+.avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#6a8cd9);margin:0 auto 10px}
+@media (prefers-reduced-motion:reduce){.orb{animation:none}}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div id="app">
+  <main id="view"></main>
+  <nav id="nav"></nav>
+</div>
+<div class="sheet-bg" id="sheetbg"><div class="sheet" id="sheet"></div></div>
+<div class="wm">zino©</div>
+<script>
+// ---- Data ----
+const WORLDS=[
+ {id:0,name:"Aetheria",genre:"High fantasy",c:["#3a5bb5","#EACD6D"],lore:"Aetheria floats above the Veil Sea, held aloft by seven star-anchors. Magic is a shared resource, rationed by the Platinum Spire.",chars:[["Isolde Vey","Anchor-keeper, secretly mapping a missing eighth star"],["Kaelen","Spire courier who owes a debt to the sea guilds"]],feed:["Rumors are spreading about the Platinum Spire's sealed vault.","Fan theory: the eighth anchor was never lost, only hidden.","Guild tensions rise at the Veil Sea docks."]},
+ {id:1,name:"Neon Overdrive",genre:"Cyberpunk",c:["#7b3fe4","#26d9c5"],lore:"Midnight never ends in Neon Overdrive. Street clans race modified transit rails across a city owned by three rival grids.",chars:[["Juno Tek","Rail racer with a stolen grid key"],["Mara-9","Fixer who sells rumors by the byte"]],feed:["Grid Two blackout traced to an illegal race.","Mara-9 posted a bounty on Juno's key.","Concept art drop: the Skyline Loop."]},
+ {id:2,name:"Void Drifters",genre:"Space opera",c:["#1f2a5a","#e86f6f"],lore:"Crews of salvage ships drift between dead stations, trading in the last working jump-drives of a collapsed empire.",chars:[["Captain Orrin","Salvager haunted by the Hollow Fleet"],["Pell","Navigator who hears the void speak"]],feed:["A dormant station answered a hail after 40 years.","Crew vote: take the Hollow Fleet contract?","Moodboard updated: derelict cathedrals."]}
+];
+const grad=w=>`linear-gradient(135deg,${w.c[0]},${w.c[1]})`;
+const ICON='<svg width="22" height="22" viewBox="0 0 24 24" fill="#EACD6D"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></svg>';
+let state={tab:"home",world:null,wtab:"Lore",filter:"All",q:"",toggles:{Notifications:true,"Living Universe updates":true,"Reduce motion":false}};
+const $=s=>document.querySelector(s);
+
+// ---- Starfield (lightweight, single canvas, paused when hidden) ----
+const cv=$('#stars'),cx=cv.getContext('2d');let stars=[];
+function size(){cv.width=innerWidth;cv.height=innerHeight;stars=Array.from({length:70},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.3+.3,p:Math.random()*6}))}
+size();addEventListener('resize',size);
+function draw(t){cx.clearRect(0,0,cv.width,cv.height);for(const s of stars){cx.globalAlpha=.35+.35*Math.sin(t/900+s.p);cx.fillStyle="#fff";cx.beginPath();cx.arc(s.x,s.y,s.r,0,6.3);cx.fill()}
+ if(!document.hidden&&!state.toggles["Reduce motion"])requestAnimationFrame(draw)}
+requestAnimationFrame(draw);
+document.addEventListener('visibilitychange',()=>requestAnimationFrame(draw));
+
+// ---- Views ----
+function worldCard(w){return `<div class="card world" data-w="${w.id}"><div class="cover" style="background:${grad(w)}"></div><div class="t"><h3>${w.name}</h3><p>${w.genre}</p></div></div>`}
+const views={
+ home:()=>`<h1>${ICON} DayDreaming</h1>
+ <div class="hero"><button class="orb" id="orb" aria-label="Create">${ICON.replace('22','34').replace('22','34')}</button><p>Tap the star to start something new.</p></div>
+ <h2>My Worlds</h2><div class="slider">${WORLDS.map(worldCard).join("")}</div>
+ <h2>Moodboards</h2><div class="grid">${WORLDS.concat(WORLDS[0]).slice(0,4).map((w,i)=>`<div class="mood" style="background:${grad(w)};opacity:${1-i*.12}"></div>`).join("")}</div>
+ <h2>Living Universe</h2><div class="card"><p class="gold">Aetheria · just now</p><h3 style="margin-top:4px">Rumors are spreading about the Platinum Spire</h3><p style="margin-top:6px">Open Aetheria to see what the AI has added to the feed.</p></div>`,
+ explore:()=>{const f=["All","Fantasy","Cyberpunk","Space"];const list=WORLDS.filter(w=>(state.filter=="All"||w.genre.toLowerCase().includes(state.filter.toLowerCase()))&&w.name.toLowerCase().includes(state.q.toLowerCase()));
+  return `<h1>Explore</h1><div style="margin-top:14px"><input type="search" id="q" placeholder="Search public worlds" value="${state.q}"></div>
+  <div class="tabs">${f.map(x=>`<button class="chip ${x==state.filter?'on':''}" data-f="${x}">${x}</button>`).join("")}</div>
+  <div class="grid">${list.map(worldCard).join("")||'<p>No worlds match. Try another filter.</p>'}</div>`},
+ lore:()=>`<h1>Lore</h1><h2>Recent entries</h2><div class="stack">${WORLDS.map(w=>`<div class="card" data-w="${w.id}"><h3>${w.name}</h3><p>${w.lore}</p></div>`).join("")}</div>`,
+ profile:()=>`<div style="text-align:center;margin-top:8px"><div class="avatar"></div><h1 style="justify-content:center">Dreamer</h1><p>3 worlds · 6 characters</p></div>
+  <h2>Created worlds</h2><div class="slider">${WORLDS.map(worldCard).join("")}</div>
+  <h2>Saved characters</h2><div class="stack">${WORLDS.flatMap(w=>w.chars.slice(0,1)).map(c=>`<div class="card"><h3>${c[0]}</h3><p>${c[1]}</p></div>`).join("")}</div>
+  <button class="fab" id="gosettings">Open settings</button>`,
+ settings:()=>`<div class="bar"><button class="back" id="back" aria-label="Back">‹</button><h1>Settings</h1></div>
+  ${Object.keys(state.toggles).map(k=>`<div class="toggle">${k}<button class="sw ${state.toggles[k]?'on':''}" data-t="${k}" aria-label="${k}"></button></div>`).join("")}
+  <div class="toggle">Account<span class="gold">dreamer@zino</span></div>`,
+ world:()=>{const w=WORLDS[state.world],T=["Lore","Characters","Feed","Moodboard"];let body="";
+  if(state.wtab=="Lore")body=`<div class="card"><p>${w.lore}</p></div>`;
+  if(state.wtab=="Characters")body=`<div class="stack">${w.chars.map(c=>`<div class="card"><h3>${c[0]}</h3><p>${c[1]}</p></div>`).join("")}</div>`;
+  if(state.wtab=="Feed")body=`<div class="stack">${w.feed.map(f=>`<div class="card"><p>${f}</p></div>`).join("")}</div>`;
+  if(state.wtab=="Moodboard")body=`<div class="grid">${[0,1,2,3].map(i=>`<div class="mood" style="background:linear-gradient(${40+i*50}deg,${w.c[0]},${w.c[1]});height:110px"></div>`).join("")}</div>`;
+  return `<div class="bar"><button class="back" id="back" aria-label="Back">‹</button><div><h1>${w.name}</h1><p>${w.genre}</p></div></div>
+  <div class="tabs">${T.map(t=>`<button class="${t==state.wtab?'on':''}" data-wt="${t}">${t}</button>`).join("")}</div>${body}
+  <button class="fab" id="contrib">Contribute with AI prompt</button>`}
+};
+
+function render(){
+ const key=state.world!==null?"world":state.tab;$('#view').innerHTML=views[key]();
+ const items=[["home","Home"],["explore","Explore"],["add","+"],["lore","Lore"],["profile","Profile"]];
+ $('#nav').innerHTML=items.map(([k,l])=>k=="add"?`<button class="plus" id="navplus" aria-label="Create">+</button>`:`<button data-n="${k}" class="${state.tab==k&&state.world===null?'on':''}">${l}</button>`).join("");
+ bind();
+}
+function openSheet(mode){
+ const opts={create:[["New World","Start from scratch or from inspiration"],["New Character","Build or blend character references"],["Add to Existing World","Expand lore, events and places"]],
+  prompt:[["Write a lore entry","AI drafts history that fits this world"],["Add a character","AI builds one with relationships"],["Post a rumor","AI adds an event to the feed"]]}[mode];
+ $('#sheet').innerHTML=`<h2 style="margin-top:0">${mode=="create"?"Create":"Contribute"}</h2>`+opts.map(o=>`<button class="opt">${o[0]}<span>${o[1]}</span></button>`).join("");
+ $('#sheetbg').classList.add('open');
+ document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>$('#sheetbg').classList.remove('open'));
+}
+$('#sheetbg').onclick=e=>{if(e.target.id=="sheetbg")e.target.classList.remove('open')};
+function bind(){
+ document.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{state.tab=b.dataset.n;state.world=null;render()});
+ document.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{state.world=+b.dataset.w;state.wtab="Lore";render()});
+ document.querySelectorAll('[data-wt]').forEach(b=>b.onclick=()=>{state.wtab=b.dataset.wt;render()});
+ document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{state.filter=b.dataset.f;render()});
+ document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{state.toggles[b.dataset.t]^=1;render();if(!state.toggles["Reduce motion"])requestAnimationFrame(draw)});
+ const q=$('#q');if(q)q.oninput=()=>{state.q=q.value;const p=q.selectionStart;render();const n=$('#q');n.focus();n.setSelectionRange(p,p)};
+ const on=(id,fn)=>{const e=$(id);if(e)e.onclick=fn};
+ on('#orb',()=>openSheet('create'));on('#navplus',()=>openSheet('create'));on('#contrib',()=>openSheet('prompt'));
+ on('#gosettings',()=>{state.tab="settings";render()});
+ on('#back',()=>{if(state.world!==null)state.world=null;else state.tab="profile";render()});
+}
+render();
+</script>
+</body>
+</html>
